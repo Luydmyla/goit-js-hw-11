@@ -7,7 +7,7 @@ export function axiosPixabay(q) {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-    per_page: 6,
+    per_page: 40,
   };
 
   return axios.get('https://pixabay.com/api/', {
