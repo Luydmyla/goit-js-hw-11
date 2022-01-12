@@ -2,21 +2,15 @@
 import axios from 'axios';
 export function axiosPixabay(q) {
   const params = {
-    key: 25154920,
+    q: 'cat',
+    key: '25154920-bc2b97b916e9c15e1ff6fb5dd',
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
+    per_page: 6,
   };
 
-  axios
-    .get(`https://pixabay.com/users/lyticok/q/${q}?fields=${params}`)
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-  // .then(function () {
-  //   // always executed
-  // });
+  return axios.get('https://pixabay.com/api/', {
+    params,
+  });
 }
