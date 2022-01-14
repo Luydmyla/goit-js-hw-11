@@ -19,9 +19,10 @@ const refs = {
 };
 
 // ===немного оформления элементов
-refs.form.style = 'background-color: #4056b4; display: flex; justify-content: center; padding: 8px';
+refs.form.style =
+  'background-color: #4056b4; display: flex; justify-content: center; padding: 8px; margin-bottom: 8px';
 refs.submitBtn.style = 'margin-left: 32px';
-refs.galleryEl.style = 'display: flex; flex-wrap: wrap';
+// refs.galleryEl.style = 'display: flex; flex-wrap: wrap';
 
 // refs.loadMoreBtn.classList.add('is-hidden');
 refs.loadMoreBtn.style = ' display: none';
@@ -40,7 +41,7 @@ function createImageEl(hits) {
     .map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
       return `
           <a href="${largeImageURL}" class="photo-card">
-           <img src="${webformatURL}" alt="${tags}" loading = "lazy" width = "360" />
+           <img src="${webformatURL}" alt="${tags}" loading = "lazy"  class="photo-image" />
            <div class="info" style= "display: flex">
               <p class="info-item">
                  <b>Likes:</b>${likes}
@@ -55,7 +56,7 @@ function createImageEl(hits) {
                 <b>Downloads: </b>${downloads}
               </p>
             </div>
-             </a>`;
+             </a> `;
     })
     .join('');
   // console.log(markup);
