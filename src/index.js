@@ -15,17 +15,21 @@ const refs = {
   submitBtn: document.querySelector('#search-form button'),
   galleryEl: document.querySelector('.gallery'),
   loadMoreBtn: document.querySelector('.load-more'),
-  // infoItemdEl: document.querySelector('.info-item'),
+  // photoCardEl: document.querySelector('.photo-card'),
 };
+
 // ===немного оформления элементов
 refs.form.style = 'background-color: #4056b4; display: flex; justify-content: center; padding: 8px';
 refs.submitBtn.style = 'margin-left: 32px';
+refs.galleryEl.style = 'display: flex; flex-wrap: wrap';
+
 // refs.loadMoreBtn.classList.add('is-hidden');
 refs.loadMoreBtn.style = ' display: none';
+//   ' display: flex; margin-top: 32px; margin-left: auto;  margin-right: auto; background-color: yellow';
 // refs.loadMoreBtn.disabled = 'false';
 // ====повесила слушатель события  на форму для ввода на событие сабмит
 refs.form.addEventListener('submit', onSubmit);
-refs.galleryEl.addEventListener('click', onImageClick);
+// refs.galleryEl.addEventListener('click', onImageClick);
 refs.loadMoreBtn.addEventListener('click', onLoadMoreClick);
 
 const imageApiService = new ImageApiService();
@@ -34,10 +38,10 @@ const imageApiService = new ImageApiService();
 function createImageEl(hits) {
   const markup = hits
     .map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
-      return `<div class="photo-card >
-       <a href="${largeImageURL}">
-           <img src="${webformatURL}" alt="${tags}" loading = "lazy" width = "480"/> </a>
-           <div class="info" style= "display: flex; justify-content: center">
+      return `
+          <a href="${largeImageURL}" class="photo-card">
+           <img src="${webformatURL}" alt="${tags}" loading = "lazy" width = "360" />
+           <div class="info" style= "display: flex">
               <p class="info-item">
                  <b>Likes:</b>${likes}
               </p>
@@ -50,14 +54,16 @@ function createImageEl(hits) {
               <p class="info-item">
                 <b>Downloads: </b>${downloads}
               </p>
-           </div>
-           </div>`;
+            </div>
+             </a>`;
     })
     .join('');
-  console.log(markup);
+  // console.log(markup);
   refs.galleryEl.innerHTML = markup;
-  simpleLightbox();
   console.log(refs.galleryEl);
+  simpleLightbox();
+  refs.loadMoreBtn.style =
+    ' display: flex; margin-top: 32px; margin-left: auto;  margin-right: auto; background-color: yellow';
   // refs.galleryEl.insertAdjacentHTML('beforeend', markup);
 }
 
@@ -70,11 +76,6 @@ function createImageEl(hits) {
 //     ' display: flex; margin-top: 32px; margin-left: auto;  margin-right: auto; background-color: yellow';
 //   // refs.galleryEl.insertAdjacentHTML('beforeend', markup);
 // }
-
-function onImageClick(e) {
-  console.log('работает онклик');
-  e.preventDefault();
-}
 
 function onSubmit(e) {
   // ===== запрет браузеру на перезагрузку страницы
