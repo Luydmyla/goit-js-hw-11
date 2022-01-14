@@ -3,11 +3,11 @@ import './sass/main.scss';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import axios from 'axios';
 import SimpleLightbox from 'simplelightbox';
-// import SimpleLightbox from 'simplelightbox/dist/simple-lightbox.esm';
 // Дополнительный импорт стилей
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { axiosPixabay } from './axiosPixabay';
 import ImageApiService from './axiosPixabay';
+
 // установила симпллайтбокс, нотифай и аксиос зарегестрировалась на  пиксабей
 // нашла ссылки на элементы формы и кнопки
 const refs = {
@@ -20,17 +20,16 @@ const refs = {
 // ===немного оформления элементов
 refs.form.style = 'background-color: #4056b4; display: flex; justify-content: center; padding: 8px';
 refs.submitBtn.style = 'margin-left: 32px';
-refs.loadMoreBtn.style =
-  ' display: flex; margin-top: 32px; margin-left: auto;  margin-right: auto; background-color: yellow';
-// refs.infoItemdEl.style = 'display: flex; justify-content: center';
-// console.log(refs.infoItemdEl);
-
+// refs.loadMoreBtn.classList.add('is-hidden');
+refs.loadMoreBtn.style = ' display: none';
+// refs.loadMoreBtn.disabled = 'false';
 // ====повесила слушатель события  на форму для ввода на событие сабмит
 refs.form.addEventListener('submit', onSubmit);
 refs.galleryEl.addEventListener('click', onImageClick);
 refs.loadMoreBtn.addEventListener('click', onLoadMoreClick);
 
 const imageApiService = new ImageApiService();
+
 // console.log(imageApiService);
 function createImageEl(hits) {
   const markup = hits
@@ -55,58 +54,80 @@ function createImageEl(hits) {
            </div>`;
     })
     .join('');
-
   console.log(markup);
   refs.galleryEl.innerHTML = markup;
+  simpleLightbox();
   console.log(refs.galleryEl);
   // refs.galleryEl.insertAdjacentHTML('beforeend', markup);
 }
 
-function simpleLightbox() {}
+// function photoMarkup(markup) {
+//   console.log(markup);
+//   // refs.galleryEl.innerHTML = markup;
+//   refs.galleryEl.insertAdjacentHTML('beforeend', createImageEl());
+//   // console.log(refs.galleryEl);
+//   refs.loadMoreBtn.style =
+//     ' display: flex; margin-top: 32px; margin-left: auto;  margin-right: auto; background-color: yellow';
+//   // refs.galleryEl.insertAdjacentHTML('beforeend', markup);
+// }
+
 function onImageClick(e) {
   console.log('работает онклик');
   e.preventDefault();
 }
-let lightbox = new SimpleLightbox('.gallery a', {
-  /* options */
-});
-lightbox.refresh();
 
 function onSubmit(e) {
   // ===== запрет браузеру на перезагрузку страницы
   e.preventDefault();
-
   imageApiService.searchQuery = e.currentTarget.elements.searchQuery.value;
   console.log(imageApiService.searchQuery);
   imageApiService.resetPage();
-  if (imageApiService.searchQuery === '') {
-    Notify.warning('Ведите запрос');
-  } else {
-    //  обрабатываем вернувшийся результат (промис) с бекенда
-    imageApiService.fetchFotos().then(hits => {
-      console.log(hits);
-      console.log('работает зен');
-      clearImagesContainer();
-      if (hits.length === 0) {
-        Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-      } else {
-        createImageEl(hits);
-      }
-    });
+  try {
+    if (imageApiService.searchQuery === '') {
+      Notify.warning('Ведите запрос');
+    } else {
+      //  обрабатываем вернувшийся результат (промис) с бекенда
+      imageApiService.fetchFotos().then(data => {
+        console.log(data);
+        console.log('работает зен');
+        clearImagesContainer();
+        if (data.hits.length === 0) {
+          Notify.failure(
+            'Sorry, there are no images matching your search query. Please try again.',
+          );
+        } else {
+          Notify.success(`Hooray! We found ${data.totalHits} images.`);
+          createImageEl(data.hits);
+        }
+      });
+    }
+  } catch (error) {
+    // === цепляю метод для обработки ошибки(=======)
+    Notify.failure("We're sorry, but you've reached the end of search results.");
+    console.log(error.message);
   }
 }
-// === цепляю метод для обработки ошибки
-// .catch(error => console.log(error));
 
 function onLoadMoreClick(e) {
   // ===== запрет браузеру на перезагрузку страницы
   e.preventDefault();
   console.log('работает');
-  imageApiService.fetchFotos().then(hits => createImageEl(hits));
+  imageApiService.fetchFotos().then(data => createImageEl(data.hits));
 }
 function clearImagesContainer() {
   refs.galleryEl.innerHTML = '';
 }
+
+function simpleLightbox() {
+  let lightbox = new SimpleLightbox('.gallery a', {
+    /* options */
+  });
+  lightbox.refresh();
+}
+
+// let infScroll = new InfiniteScroll('.gallery', {
+//   // options
+// });
 
 // axiosPixabay(searchQuery)
 //   //  обрабатываем вернувшийся результат (промис) с бекенда
