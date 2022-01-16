@@ -17,7 +17,6 @@ const refs = {
   loadMoreBtn: document.querySelector('.load-more'),
   // photoCardEl: document.querySelector('.photo-card'),
 };
-
 // ===немного оформления элементов
 refs.form.style =
   'background-color: #4056b4; display: flex; justify-content: center; padding: 8px; margin-bottom: 8px';
@@ -35,6 +34,7 @@ refs.loadMoreBtn.addEventListener('click', onLoadMoreClick);
 const imageApiService = new ImageApiService();
 
 function createImageEl(hits) {
+  console.log(hits);
   const markup = hits
     .map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
       return `
@@ -62,11 +62,11 @@ function createImageEl(hits) {
   console.log(refs.galleryEl);
   simpleLightbox();
   refs.loadMoreBtn.style =
-    ' display: flex; margin-top: 32px; margin-left: auto;  margin-right: auto; background-color: yellow';
+    ' display: flex;  margin-left: auto;  margin-right: auto; background-color: yellow';
   // refs.galleryEl.insertAdjacentHTML('beforeend', markup);
 }
 
-function onSubmit(e) {
+async function onSubmit(e) {
   // ===== запрет браузеру на перезагрузку страницы
   e.preventDefault();
   imageApiService.searchQuery = e.currentTarget.elements.searchQuery.value;
@@ -77,19 +77,20 @@ function onSubmit(e) {
       Notify.warning('Ведите запрос');
     } else {
       //  обрабатываем вернувшийся результат (промис) с бекенда
-      imageApiService.fetchFotos().then(data => {
-        console.log(data);
-        console.log('работает зен');
-        // clearImagesContainer();
-        if (data.hits.length === 0) {
-          Notify.failure(
-            'Sorry, there are no images matching your search query. Please try again.',
-          );
-        } else {
-          Notify.success(`Hooray! We found ${data.totalHits} images.`);
-          createImageEl(data.hits);
-        }
-      });
+      console.log(imageApiService.fetchFotos());
+      const response = await imageApiService.fetchFotos();
+      const {
+        data: { hits, totalHits },
+      } = response;
+      console.log(hits);
+      console.log('работает зен');
+      // clearImagesContainer();
+      if (hits.length === 0) {
+        Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+      } else {
+        Notify.success(`Hooray! We found ${totalHits} images.`);
+        createImageEl(hits);
+      }
     }
   } catch (error) {
     // === цепляю метод для обработки ошибки(=======)
@@ -97,12 +98,15 @@ function onSubmit(e) {
     console.log(error.message);
   }
 }
-
-function onLoadMoreClick(e) {
+async function onLoadMoreClick(e) {
   // ===== запрет браузеру на перезагрузку страницы
   e.preventDefault();
   console.log('работает');
-  imageApiService.fetchFotos().then(data => createImageEl(data.hits));
+  const response = await imageApiService.fetchFotos();
+  const {
+    data: { hits },
+  } = response;
+  createImageEl(hits);
 }
 function clearImagesContainer() {
   refs.galleryEl.innerHTML = '';
