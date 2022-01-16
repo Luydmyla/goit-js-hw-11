@@ -54,9 +54,9 @@ export default class ImageApiService {
         page: this.page,
       });
 
-      const url = `${BASE_URL}?${params}`;
-      // console.log(url);
-      // console.log(params);
+      const url = `${BASE_URL}/?${params}`;
+      console.log(url);
+      console.log(params);
       this.icrementPage();
       // console.log(axios.get(url, { params }));
       return await axios.get(url);
