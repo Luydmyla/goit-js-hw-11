@@ -30,9 +30,9 @@ refs.loadMoreBtn.style = ' display: none';
 // ====повесила слушатель события  на форму для ввода на событие сабмит
 refs.form.addEventListener('submit', onSubmit);
 refs.loadMoreBtn.addEventListener('click', onLoadMoreClick);
-
+// создаем экземпляр класса
 const imageApiService = new ImageApiService();
-
+//========= функция, которая рисует галлерею
 function createImageEl(hits) {
   console.log(hits);
   const markup = hits
@@ -57,33 +57,35 @@ function createImageEl(hits) {
              </a> `;
     })
     .join('');
-  // console.log(markup);
+  refs.galleryEl.insertAdjacentHTML('beforeend', markup);
   // refs.galleryEl.innerHTML = markup;
   console.log(refs.galleryEl);
+  // вызываем библиотеку лайтбокс для красивой галлереи
   simpleLightbox();
+  // =========показываем кнопку "загрузить еще"====
   refs.loadMoreBtn.style =
     ' display: flex;  margin-left: auto;  margin-right: auto; background-color: yellow';
-  refs.galleryEl.insertAdjacentHTML('beforeend', markup);
 }
-
+// =======асинхронная функция которая отправляет запрос при сабмите формы
 async function onSubmit(e) {
   // ===== запрет браузеру на перезагрузку страницы
   e.preventDefault();
   imageApiService.searchQuery = e.currentTarget.elements.searchQuery.value;
   console.log(imageApiService.searchQuery);
+  // =========очищаем страницу перед новым запросом============
   imageApiService.resetPage();
   try {
     if (imageApiService.searchQuery === '') {
       Notify.warning('Ведите запрос');
     } else {
       //  обрабатываем вернувшийся результат (промис) с бекенда
-      console.log(imageApiService.fetchFotos());
+      // console.log(imageApiService.fetchFotos());
       const response = await imageApiService.fetchFotos();
       const {
         data: { hits, totalHits },
       } = response;
-      console.log(hits);
-      console.log('работает зен');
+      // console.log(hits);
+      // console.log('работает зен');
       // clearImagesContainer();
       if (hits.length === 0) {
         Notify.failure('Sorry, there are no images matching your search query. Please try again.');
@@ -98,6 +100,7 @@ async function onSubmit(e) {
     console.log(error.message);
   }
 }
+// ====ассинхронная функция , которая при клике по кнопке "загрузить еще " добавляет новые фото в галлерею
 async function onLoadMoreClick(e) {
   // ===== запрет браузеру на перезагрузку страницы
   e.preventDefault();
@@ -108,10 +111,11 @@ async function onLoadMoreClick(e) {
   } = response;
   createImageEl(hits);
 }
+// ==функция очищающая галлерею
 function clearImagesContainer() {
   refs.galleryEl.innerHTML = '';
 }
-
+// ====библиотека лайтбокс для красивой галлереи====
 function simpleLightbox() {
   let lightbox = new SimpleLightbox('.gallery a', {
     /* options */
