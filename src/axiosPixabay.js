@@ -1,6 +1,6 @@
 // === именованный экспорт функции которая делает запрос на бекенд и возвращает промис
-import axios from 'axios';
-// const axios = require('axios');
+// import axios from 'axios';
+const axios = require('axios');
 const API_KEY = '25154920-bc2b97b916e9c15e1ff6fb5dd';
 const BASE_URL = 'https://pixabay.com/api';
 // ==============запрос через фетч================
@@ -56,7 +56,7 @@ export default class ImageApiService {
     const url = `${BASE_URL}`;
     console.log(params);
     this.icrementPage();
-    console.log(axios.get(url, { params }));
+    // console.log(axios.get(url, { params }));
     return await axios.get(url, { params });
   }
   icrementPage() {

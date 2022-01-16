@@ -76,17 +76,19 @@ async function onSubmit(e) {
   imageApiService.resetPage();
   try {
     if (imageApiService.searchQuery === '') {
+      clearImagesContainer();
       Notify.warning('Ведите запрос');
     } else {
       //  обрабатываем вернувшийся результат (промис) с бекенда
       // console.log(imageApiService.fetchFotos());
+
       const response = await imageApiService.fetchFotos();
       const {
         data: { hits, totalHits },
       } = response;
       // console.log(hits);
       // console.log('работает зен');
-      // clearImagesContainer();
+      clearImagesContainer();
       if (hits.length === 0) {
         Notify.failure('Sorry, there are no images matching your search query. Please try again.');
       } else {
@@ -114,6 +116,7 @@ async function onLoadMoreClick(e) {
 // ==функция очищающая галлерею
 function clearImagesContainer() {
   refs.galleryEl.innerHTML = '';
+  refs.loadMoreBtn.style = 'display: none';
 }
 // ====библиотека лайтбокс для красивой галлереи====
 function simpleLightbox() {
