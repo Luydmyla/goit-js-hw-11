@@ -44,7 +44,7 @@ export default class ImageApiService {
   async fetchFotos() {
     try {
       console.log(this);
-      const params = {
+      const params = new URLSearchParams({
         q: this.searchQuery,
         key: '25154920-bc2b97b916e9c15e1ff6fb5dd',
         image_type: 'photo',
@@ -52,13 +52,14 @@ export default class ImageApiService {
         safesearch: true,
         per_page: this.per_page,
         page: this.page,
-      };
+      });
 
-      const url = `${BASE_URL}`;
-      console.log(params);
+      const url = `${BASE_URL}?${params}`;
+      // console.log(url);
+      // console.log(params);
       this.icrementPage();
       // console.log(axios.get(url, { params }));
-      return await axios.get(url, { params });
+      return await axios.get(url);
     } catch (error) {
       // === цепляю метод для обработки ошибки(=======)
       console.log(error.message);
