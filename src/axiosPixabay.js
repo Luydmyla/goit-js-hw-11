@@ -42,22 +42,27 @@ export default class ImageApiService {
     this.per_page = 40;
   }
   async fetchFotos() {
-    console.log(this);
-    const params = {
-      q: this.searchQuery,
-      key: '25154920-bc2b97b916e9c15e1ff6fb5dd',
-      image_type: 'photo',
-      orientation: 'horizontal',
-      safesearch: true,
-      per_page: this.per_page,
-      page: this.page,
-    };
+    try {
+      console.log(this);
+      const params = {
+        q: this.searchQuery,
+        key: '25154920-bc2b97b916e9c15e1ff6fb5dd',
+        image_type: 'photo',
+        orientation: 'horizontal',
+        safesearch: true,
+        per_page: this.per_page,
+        page: this.page,
+      };
 
-    const url = `${BASE_URL}`;
-    console.log(params);
-    this.icrementPage();
-    // console.log(axios.get(url, { params }));
-    return await axios.get(url, { params });
+      const url = `${BASE_URL}`;
+      console.log(params);
+      this.icrementPage();
+      // console.log(axios.get(url, { params }));
+      return await axios.get(url, { params });
+    } catch (error) {
+      // === цепляю метод для обработки ошибки(=======)
+      console.log(error.message);
+    }
   }
   icrementPage() {
     this.page += 1;
