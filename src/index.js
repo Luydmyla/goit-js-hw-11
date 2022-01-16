@@ -58,12 +58,12 @@ function createImageEl(hits) {
     })
     .join('');
   // console.log(markup);
-  refs.galleryEl.innerHTML = markup;
+  // refs.galleryEl.innerHTML = markup;
   console.log(refs.galleryEl);
   simpleLightbox();
   refs.loadMoreBtn.style =
     ' display: flex;  margin-left: auto;  margin-right: auto; background-color: yellow';
-  // refs.galleryEl.insertAdjacentHTML('beforeend', markup);
+  refs.galleryEl.insertAdjacentHTML('beforeend', markup);
 }
 
 async function onSubmit(e) {
