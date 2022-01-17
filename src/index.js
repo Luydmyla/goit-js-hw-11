@@ -9,30 +9,29 @@ import { axiosPixabay } from './axiosPixabay';
 import ImageApiService from './axiosPixabay';
 
 // установила симпллайтбокс, нотифай и аксиос зарегестрировалась на  пиксабей
-// нашла ссылки на элементы формы и кнопки
+// нашла ссылки на элементы формы и кнопок
 const refs = {
   form: document.querySelector('#search-form'),
   submitBtn: document.querySelector('#search-form button'),
   galleryEl: document.querySelector('.gallery'),
   loadMoreBtn: document.querySelector('.load-more'),
+  goUpBtn: document.querySelector('.go-up'),
   // photoCardEl: document.querySelector('.photo-card'),
 };
-// ===немного оформления элементов
+// ===немного оформления элементов==============
 refs.form.style =
-  'background-color: #4056b4; display: flex; justify-content: center; padding: 8px; margin-bottom: 8px';
+  'background-color: #4056b4; display: flex; justify-content: center; padding: 8px; margin-bottom: 8px; position: fixed; top: 0; z-index: 99; width: 100%';
 refs.submitBtn.style = 'margin-left: 32px';
-// refs.galleryEl.style = 'display: flex; flex-wrap: wrap';
-
-// refs.loadMoreBtn.classList.add('is-hidden');
 refs.loadMoreBtn.style = ' display: none';
-//   ' display: flex; margin-top: 32px; margin-left: auto;  margin-right: auto; background-color: yellow';
-// refs.loadMoreBtn.disabled = 'false';
-// ====повесила слушатель события  на форму для ввода на событие сабмит
+refs.goUpBtn.style = ' display: none';
+
+// ====повесила слушатель события  на форму для ввода на событие сабмит============
 refs.form.addEventListener('submit', onSubmit);
 refs.loadMoreBtn.addEventListener('click', onLoadMoreClick);
-// создаем экземпляр класса
+refs.goUpBtn.addEventListener('click', onButtonUp);
+//================ создаем экземпляр класса==========
 const imageApiService = new ImageApiService();
-//========= функция, которая рисует галлерею
+//========= функция, которая рисует галлерею==================
 function createImageEl(hits) {
   console.log(hits);
   const markup = hits
@@ -58,17 +57,19 @@ function createImageEl(hits) {
     })
     .join('');
   refs.galleryEl.insertAdjacentHTML('beforeend', markup);
-  // refs.galleryEl.innerHTML = markup;
-  console.log(refs.galleryEl);
-  // вызываем библиотеку лайтбокс для красивой галлереи
+  // console.log(refs.galleryEl);
+  // ==========вызываем библиотеку лайтбокс для красивой галлереи============
   simpleLightbox();
-  // =========показываем кнопку "загрузить еще"====
+  scroll();
+  // =========показываем кнопку "загрузить еще" и кнопку "наверх" ====
   refs.loadMoreBtn.style =
-    ' display: flex;  margin-left: auto;  margin-right: auto; background-color: yellow';
+    ' display: flex;  margin-left: auto;  margin-right: auto; margin-bottom:32px; margin-top:32px; padding:16px; border: 1px solid green; border-radius:8px; background-color: yellow';
+  refs.goUpBtn.style =
+    'position: fixed; bottom: 32px;right: 32px; border-radius: 50%; width: 80px; height: 80px; background-color: lime; color: blue; border: 1px solid blue';
 }
-// =======асинхронная функция которая отправляет запрос при сабмите формы
+// =======асинхронная функция которая отправляет запрос при сабмите формы-----------
 async function onSubmit(e) {
-  // ===== запрет браузеру на перезагрузку страницы
+  // ===== запрет браузеру на перезагрузку страницы=======
   e.preventDefault();
   imageApiService.searchQuery = e.currentTarget.elements.searchQuery.value;
   console.log(imageApiService.searchQuery);
@@ -77,14 +78,11 @@ async function onSubmit(e) {
   try {
     if (imageApiService.searchQuery === '') {
       clearImagesContainer();
-      Notify.warning('Ведите запрос');
+      Notify.warning('Enter your search query');
     } else {
-      //  обрабатываем вернувшийся результат (промис) с бекенда
-      // console.log(imageApiService.fetchFotos());
-
       const response = await imageApiService.fetchFotos();
       const {
-        data: { hits, totalHits },
+        data: { hits, total, totalHits },
       } = response;
       // console.log(hits);
       // console.log('работает зен');
@@ -106,18 +104,35 @@ async function onSubmit(e) {
 async function onLoadMoreClick(e) {
   // ===== запрет браузеру на перезагрузку страницы
   e.preventDefault();
-  console.log('работает');
+  // console.log('работает');
   const response = await imageApiService.fetchFotos();
   const {
     data: { hits },
   } = response;
-  createImageEl(hits);
+  if (hits.length === 0) {
+    Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+    // refs.goUpBtn.style = ' display: none';
+  } else createImageEl(hits);
 }
-// ==функция очищающая галлерею
+// ==функция очищающая галлерею==========
 function clearImagesContainer() {
   refs.galleryEl.innerHTML = '';
   refs.loadMoreBtn.style = 'display: none';
+  refs.goUpBtn.style = ' display: none';
 }
+// ===функция, для плавного скрола, можно сразу проскролить до конца страницы,
+// указав top: cardHeight 40,
+function scroll() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+  window.scrollBy({
+    // top: cardHeight * 40,
+    top: cardHeight * 1,
+    behavior: 'smooth',
+  });
+}
+
 // ====библиотека лайтбокс для красивой галлереи====
 function simpleLightbox() {
   let lightbox = new SimpleLightbox('.gallery a', {
@@ -125,24 +140,9 @@ function simpleLightbox() {
   });
   lightbox.refresh();
 }
-
-// let infScroll = new InfiniteScroll('.gallery', {
-//   // options
-// });
-
-// axiosPixabay(searchQuery)
-//   //  обрабатываем вернувшийся результат (промис) с бекенда
-//   .then(image => {
-//     console.log('работает зен2', image);
-//     pageNumber += 1;
-//     // console.log(image.data);
-//     // const imagesSearch = image.data.hits;
-//     // console.log(imagesSearch);
-//     // if (imagesSearch.length === 0) {
-//     //   Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-//     // } else {
-//     //   createImageEl(imagesSearch);
-//     // }
-//   })
-//   // === цепляю метод для обработки ошибки
-//   .catch(error => console.log(error));
+// ==========функция, которая при клике на кнопку "иди вверх" перебрасывает на начало страницы
+function onButtonUp(e) {
+  e.preventDefault();
+  // console.log('видно кнопку');
+  window.scrollTo(0, 0);
+}
